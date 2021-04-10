@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "hoge-project1",
+  "private_key_id": "hoge",
+  "private_key": "-----BEGIN PRIVATE KEY-----hoge-----END PRIVATE KEY-----\n",
+  "client_email": "hoge.com",
+  "client_id": "hoge",
+  "auth_uri": "hoge",
+  "token_uri": "hoge",
+  "auth_provider_x509_cert_url": "https://www.hogehoge",
+  "client_x509_cert_url": "https://www.hogehoge"
+}
