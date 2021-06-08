@@ -25,6 +25,7 @@ USER_ID = info["USER_ID"]
 WEBHOOK_HANDLER = info["WEBHOOK_HANDLER"]
 PRESS_URL = info["PRESS_URL"]
 TEMP_URL = info["TEMP_URL"]
+MOIS_URL = info["MOIS_URL"]
 line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(WEBHOOK_HANDLER)
 
@@ -80,6 +81,18 @@ def select_press(sheet2):
     return float(last["pressure"])
 
 
+def select_moisture(sheet2):
+    values = sheet2.get_all_records()
+    last = values[-1]
+    return float(last["moisture"])
+
+
+def select_luminous(sheet2):
+    values = sheet2.get_all_records()
+    last = values[-1]
+    return float(last["luminous"])
+
+
 def select_press_ave(sheet2):
     values = sheet2.get_all_records()
     p = [d.get("change_pre") for d in values[-12:]]
@@ -97,6 +110,14 @@ def create_response_text():
     sheet2 = get_sheet()
     temp, humidity = select_temp_and_humidity(sheet2)
     return f"待ってました！\n現在の気温は{round(temp)}℃、湿度は{round(humidity)}％やね"
+
+
+def create_response_status():
+    sheet2 = get_sheet()
+    moisture = select_moisture(sheet2)
+    temp, humidity = select_temp_and_humidity(sheet2)
+    luminous = select_luminous(sheet2)
+    return f"新機能やね！ガジュマルの環境チェック！\n土の湿度{round(moisture, 1)}％\n温度: {round(temp)}℃\n湿度: {round(humidity)}％\n光度レベル: {round(luminous)}"
 
 
 def create_response_disc():
@@ -184,12 +205,18 @@ def create_message(my_comments):
         botRes = create_response_pre_state()
     elif "直近の変化は？" in my_comments:
         botRes = create_response_followUp()
+    elif "植物見てきて" in my_comments:
+        botRes = create_response_status()
 
     # お留守番実行
     elif "行ってきます" in my_comments:
         botRes = wait_messages[random.randint(0, 3)]
         subprocess.Popen(["python3", "facial_req_bot.py"],
                          cwd="./facial_recognition")
+
+    elif "起きて" in my_comments:
+        botRes = "ごめん気絶してたわ"
+        subprocess.Popen(["python3", "./send_temp_ms.py"])
 
     #　グラフゲット
     elif "気圧グラフある？" in my_comments:
@@ -205,9 +232,16 @@ def create_message(my_comments):
         time.sleep(2)
         botRes = "メカ使いが荒い・・・送ったよ！\n直近二時間のデータまとめといたからね。"
 
+    elif "植物グラフある？" in my_comments:
+        messages = ImageSendMessage(original_content_url=MOIS_URL,
+                                    preview_image_url=MOIS_URL)
+        line_bot_api.push_message(USER_ID, messages=messages)
+        time.sleep(2)
+        botRes = "仕方ないなぁ・・・送ったよ！\n温湿度と土壌湿度の推移がわかるよ。"
+
     # チートシート
     elif "コマンド忘れた" in my_comments:
-        botRes = "え～！！はよ覚えてよ・・・\n\n気温わかる？:温湿度を見ます\n快適？:不快指数を見ます\n気圧調べて:気圧を見ます\n状況は？:気圧の傾向を見ます\n直近の変化は？:直近1時間の気圧変化を見ます\n行ってきます:お留守番モードに入ります\n気圧or気温グラフある？:リアルタイムグラフ送ります\n釣れた:釣果報告書作ります\nおやすみ:本体の電源を切ります\n\nって私に言わすな！リアリティに欠けるやん・・・ちゃんと覚えて！"
+        botRes = "え～！！はよ覚えてよ・・・\n\n気温わかる？:温湿度を見ます\n快適？:不快指数を見ます\n気圧調べて:気圧を見ます\n状況は？:気圧の傾向を見ます\n直近の変化は？:直近1時間の気圧変化を見ます\n行ってきます:お留守番モードに入ります\n植物見てきて: 土壌湿度を確認します\n気圧or気温グラフある？:リアルタイムグラフ送ります\n釣れた:釣果報告書作ります\nおやすみ:本体の電源を切ります\n\nって私に言わすな！リアリティに欠けるやん・・・ちゃんと覚えて！"
     elif "出来る事なんだっけ？" in my_comments:
         botRes = "今出来ることは\n\n・不快指数から暑い、寒いを判断して連絡するで。ブーブー言わんと快適に戻ったらちゃんと言うから。\n\n・気圧の大きな変化があれば連絡するで。天気の変化や時合の目安にして。\n\n・気圧の上昇、下降の傾向が切り変わったら連絡するわ。\n\n現在のデータやグラフが欲しい時は連絡してな！"
     elif my_comments in "おやすみ":

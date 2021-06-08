@@ -1,8 +1,9 @@
 {
-    "CHANNEL_ACCESS_TOKEN": "hogehoge",
-    "USER_ID": "hogehgoe",
-    "WEBHOOK_HANDLER": "hogehgoe",
-    "SPREADSHEET_KEY": "hogehoge",
-    "PRESS_URL": "hogehoge",
-    "TEMP_URL": "hogehoge"
+    "CHANNEL_ACCESS_TOKEN": "hogefuga",
+    "USER_ID": "hogefuga",
+    "WEBHOOK_HANDLER": "foobar",
+    "SPREADSHEET_KEY": "foobar",
+    "PRESS_URL": "https://hogehoge",
+    "TEMP_URL": "https://hogehoge",
+    "MOIS_URL": "https://fugafuga"
 }
